@@ -4,10 +4,6 @@ import { setAccessToken } from "../../store/authSlice";
 import axios from "axios";
 import "./LoginPage.css";
 import { login } from "../../services/authApi";
-import type {
-  LoginSuccessResponse,
-  LoginErrorResponse,
-} from "../../services/authApi";
 import logoImage from "../../assets/img/logo.png";
 import GoogleImage from "../../assets/img/Google.png";
 import CustomModal from "../signuppage/CustomModal";
@@ -67,10 +63,10 @@ const LoginPage: React.FC = () => {
     closeModal();
 
     try {
-      const result: LoginSuccessResponse = await login(id, password);
+      const result = await login(id, password);
+      const accessToken = result.data?.accessToken;
 
-      if (result.status === "success") {
-        const { accessToken } = result.data;
+      if (result.status === "success" && accessToken) {
         localStorage.setItem("accessToken", accessToken); // 로컬스토리지 저장
         dispatch(setAccessToken(accessToken)); // redux 저장
         openModal(result.message);
@@ -82,7 +78,7 @@ const LoginPage: React.FC = () => {
     } catch (error) {
       console.error("로그인 요청 중 오류 발생:", error);
       if (axios.isAxiosError(error) && error.response) {
-        const errorData = error.response.data as LoginErrorResponse;
+        const errorData = error.response.data;
         openModal(errorData.message || "로그인에 실패했습니다.");
       } else {
         openModal("네트워크 오류 또는 알 수 없는 문제가 발생했습니다.");

@@ -13,7 +13,6 @@ import { Members } from "../../../../constants/userconstants";
 import FilterTable from "./FilterTable";
 import { NoCgAddModal } from "../../../../components/modal/WsmenuModal";
 
-
 export default function ListTable() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isFilter, setIsFilter] = useState<boolean>(false);
@@ -82,35 +81,66 @@ export default function ListTable() {
     <div className="listtable-container">
       {isModalOpen && <NoCgAddModal onClose={() => setIsModalOpen(false)} />}
       <div className="listtable-btn-container">
-        <button onClick={() => {
-          if (showFilter) { setIsModalOpen(true) }
-          else handleAddCategory()
-        }
-        }>
+        <button
+          onClick={() => {
+            if (showFilter) {
+              setIsModalOpen(true);
+            } else handleAddCategory();
+          }}
+        >
           <p>카테고리 추가</p>
-          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#FFFFFF"><path d="M444-444H240v-72h204v-204h72v204h204v72H516v204h-72v-204Z" /></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#FFFFFF"
+          >
+            <path d="M444-444H240v-72h204v-204h72v204h204v72H516v204h-72v-204Z" />
+          </svg>
         </button>
         <button onClick={() => setIsFilter((prev) => !prev)}>
           <p>필터</p>
-          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#FFFFFF"><path d="M456.18-192Q446-192 439-198.9t-7-17.1v-227L197-729q-9-12-2.74-25.5Q200.51-768 216-768h528q15.49 0 21.74 13.5Q772-741 763-729L528-443v227q0 10.2-6.88 17.1-6.89 6.9-17.06 6.9h-47.88ZM480-498l162-198H317l163 198Zm0 0Z" /></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#FFFFFF"
+          >
+            <path d="M456.18-192Q446-192 439-198.9t-7-17.1v-227L197-729q-9-12-2.74-25.5Q200.51-768 216-768h528q15.49 0 21.74 13.5Q772-741 763-729L528-443v227q0 10.2-6.88 17.1-6.89 6.9-17.06 6.9h-47.88ZM480-498l162-198H317l163 198Zm0 0Z" />
+          </svg>
         </button>
         {isFilter && (
           <div className="filter-dropdown">
             {/* 카테고리 */}
             <div className="filter-group">
-              <div className="filter-header" onClick={() => setShowCategory((prev) => !prev)}>
+              <div
+                className="filter-header"
+                onClick={() => setShowCategory((prev) => !prev)}
+              >
                 <label>카테고리</label>
-                {showCategory ? <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" /></svg> : <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="20px"
-                  viewBox="0 -960 960 960"
-                  width="20px"
-                  fill="#000"
-                >
-                  <path
-                    d="M480-333 240-573l51-51 189 189 189-189 51 51-240 240Z"
-                  />
-                </svg>}
+                {showCategory ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="20px"
+                    viewBox="0 -960 960 960"
+                    width="20px"
+                    fill="#000000"
+                  >
+                    <path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="20px"
+                    viewBox="0 -960 960 960"
+                    width="20px"
+                    fill="#000"
+                  >
+                    <path d="M480-333 240-573l51-51 189 189 189-189 51 51-240 240Z" />
+                  </svg>
+                )}
               </div>
               <div className="dropdown-wrapper">
                 {showCategory && (
@@ -119,11 +149,15 @@ export default function ListTable() {
                       <div key={cg.feature_category_id}>
                         <input
                           type="checkbox"
-                          checked={selectedCategories.includes(cg.feature_category_id)}
+                          checked={selectedCategories.includes(
+                            cg.feature_category_id
+                          )}
                           onChange={() =>
                             setSelectedCategories((prev) =>
                               prev.includes(cg.feature_category_id)
-                                ? prev.filter((id) => id !== cg.feature_category_id)
+                                ? prev.filter(
+                                    (id) => id !== cg.feature_category_id
+                                  )
                                 : [...prev, cg.feature_category_id]
                             )
                           }
@@ -138,20 +172,32 @@ export default function ListTable() {
 
             {/* 참여자 */}
             <div className="filter-group">
-              <div className="filter-header" onClick={() => setShowParticipant((prev) => !prev)}>
+              <div
+                className="filter-header"
+                onClick={() => setShowParticipant((prev) => !prev)}
+              >
                 <label>참여자</label>
-                {showParticipant ? <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" /></svg>
-                  : <svg
+                {showParticipant ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="20px"
+                    viewBox="0 -960 960 960"
+                    width="20px"
+                    fill="#000000"
+                  >
+                    <path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                  </svg>
+                ) : (
+                  <svg
                     xmlns="http://www.w3.org/2000/svg"
                     height="20px"
                     viewBox="0 -960 960 960"
                     width="20px"
                     fill="#000"
                   >
-                    <path
-                      d="M480-333 240-573l51-51 189 189 189-189 51 51-240 240Z"
-                    />
-                  </svg>}
+                    <path d="M480-333 240-573l51-51 189 189 189-189 51 51-240 240Z" />
+                  </svg>
+                )}
               </div>
               <div className="dropdown-wrapper">
                 {showParticipant && (
@@ -169,18 +215,28 @@ export default function ListTable() {
                             )
                           }
                         />
-                        {Members.find((m) => m.user_id === user)?.profile_image ? (
+                        {Members.find((m) => m.user_id === user)
+                          ?.profile_image ? (
                           <img
-                            src={Members.find((m) => m.user_id === user)?.profile_image}
+                            src={
+                              Members.find((m) => m.user_id === user)
+                                ?.profile_image
+                            }
                             alt={Members.find((m) => m.user_id === user)?.name}
                             className="listprofile-img"
                           />
                         ) : (
                           <div className="listprofile-none">
-                            {Members.find((m) => m.user_id === user)?.name.charAt(0)}
+                            {Members.find(
+                              (m) => m.user_id === user
+                            )?.name.charAt(0)}
                           </div>
                         )}
-                        <span title={Members.find((m) => m.user_id === user)?.name}>{Members.find((m) => m.user_id === user)?.name}</span>
+                        <span
+                          title={Members.find((m) => m.user_id === user)?.name}
+                        >
+                          {Members.find((m) => m.user_id === user)?.name}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -190,24 +246,39 @@ export default function ListTable() {
 
             {/* 상태 */}
             <div className="filter-group">
-              <div className="filter-header" onClick={() => setShowStatus((prev) => !prev)}>
+              <div
+                className="filter-header"
+                onClick={() => setShowStatus((prev) => !prev)}
+              >
                 <label>상태</label>
-                {showStatus ? <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" /></svg> : <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="20px"
-                  viewBox="0 -960 960 960"
-                  width="20px"
-                  fill="#000"
-                >
-                  <path
-                    d="M480-333 240-573l51-51 189 189 189-189 51 51-240 240Z"
-                  />
-                </svg>}
+                {showStatus ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="20px"
+                    viewBox="0 -960 960 960"
+                    width="20px"
+                    fill="#000000"
+                  >
+                    <path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="20px"
+                    viewBox="0 -960 960 960"
+                    width="20px"
+                    fill="#000"
+                  >
+                    <path d="M480-333 240-573l51-51 189 189 189-189 51 51-240 240Z" />
+                  </svg>
+                )}
               </div>
               <div className="dropdown-wrapper">
                 {showStatus && (
                   <div className="dropdown-absolute">
-                    {(["NOT_STARTED", "IN_PROGRESS", "COMPLETED"] as Status[]).map((status) => (
+                    {(
+                      ["NOT_STARTED", "IN_PROGRESS", "COMPLETED"] as Status[]
+                    ).map((status) => (
                       <div key={status}>
                         <input
                           type="checkbox"
@@ -228,31 +299,39 @@ export default function ListTable() {
               </div>
             </div>
 
-            <button onClick={() => {
-              setShowFilter(true)
-              setShowCategory(false)
-              setShowParticipant(false)
-              setShowStatus(false)
-            }} className="filter-apply-btn">
+            <button
+              onClick={() => {
+                setShowFilter(true);
+                setShowCategory(false);
+                setShowParticipant(false);
+                setShowStatus(false);
+              }}
+              className="filter-apply-btn"
+            >
               확인
             </button>
-            <button onClick={() => {
-              setShowFilter(false)
-              setSelectedCategories([])
-              setSelectedAssignees([])
-              setSelectedStatuses([])
-            }
-            } className="filter-apply-btn">
+            <button
+              onClick={() => {
+                setShowFilter(false);
+                setSelectedCategories([]);
+                setSelectedAssignees([]);
+                setSelectedStatuses([]);
+              }}
+              className="filter-apply-btn"
+            >
               취소
             </button>
           </div>
         )}
       </div>
-      {showFilter ?
-        <FilterTable selectedCategories={selectedCategories}
+      {showFilter ? (
+        <FilterTable
+          selectedCategories={selectedCategories}
           selectedAssignees={selectedAssignees}
-          selectedStatuses={selectedStatuses} /> :
-        (<table className="feature-table">
+          selectedStatuses={selectedStatuses}
+        />
+      ) : (
+        <table className="feature-table">
           <thead>
             <tr>
               <th>이름</th>
@@ -287,7 +366,9 @@ export default function ListTable() {
                                 (e.target as HTMLInputElement).blur(); // 엔터치면 blur로 확정
                               }
                             }}
-                            onBlur={() => updateCategoryName(cg.feature_category_id)}
+                            onBlur={() =>
+                              updateCategoryName(cg.feature_category_id)
+                            }
                             autoFocus
                           />
                         ) : (
@@ -332,7 +413,7 @@ export default function ListTable() {
                                 onBlur={() => {
                                   updateCategoryName(
                                     cg.feature_category_id,
-                                    true,
+                                    true
                                   );
                                 }}
                                 autoFocus
@@ -340,11 +421,15 @@ export default function ListTable() {
                             ) : (
                               <>
                                 <span title={cg.name}>{cg.name}</span>
-                                <button className="list-modifybtn"
+                                <button
+                                  className="list-modifybtn"
                                   onClick={() => {
                                     setName(cg.name);
-                                    setEditingCategoryId(cg.feature_category_id);
-                                  }}>
+                                    setEditingCategoryId(
+                                      cg.feature_category_id
+                                    );
+                                  }}
+                                >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     height="20px"
@@ -375,7 +460,9 @@ export default function ListTable() {
                                   <button
                                     className="list-deletebtn"
                                     onClick={() =>
-                                      handleDeleteCategory(cg.feature_category_id)
+                                      handleDeleteCategory(
+                                        cg.feature_category_id
+                                      )
                                     }
                                   >
                                     <svg
@@ -389,7 +476,8 @@ export default function ListTable() {
                                     </svg>
                                   </button>
                                 </div>
-                              </>)}
+                              </>
+                            )}
                           </>
                         )}
                       </div>
@@ -399,9 +487,12 @@ export default function ListTable() {
                     <td />
                     <td>
                       <button
-                        className={`list-completebtn ${isCompleted ? "completed" : ""
-                          }`}
-                        disabled={!categoryCompletableMap[cg.feature_category_id]}
+                        className={`list-completebtn ${
+                          isCompleted ? "completed" : ""
+                        }`}
+                        disabled={
+                          !categoryCompletableMap[cg.feature_category_id]
+                        }
                         onClick={() =>
                           handleCompleteClick(cg.feature_category_id)
                         }
@@ -424,8 +515,7 @@ export default function ListTable() {
                   </tr>
 
                   {/* 기능 리스트 */}
-                  {
-                    clickCg[index] &&
+                  {clickCg[index] &&
                     categoryFeatures.map((ft) => {
                       const featureActions =
                         actionsByFeatureId.get(ft.feature_id) || [];
@@ -433,7 +523,9 @@ export default function ListTable() {
                       return (
                         <React.Fragment key={ft.feature_id}>
                           <tr
-                            className={`ft-row ${isCompleted ? "completed" : ""}`}
+                            className={`ft-row ${
+                              isCompleted ? "completed" : ""
+                            }`}
                           >
                             <td className="list-name">
                               <div className="ftlist-name">
@@ -450,11 +542,12 @@ export default function ListTable() {
                                     onBlur={() => {
                                       updateFeatureName(
                                         ft.category_id,
-                                        ft.feature_id,
+                                        ft.feature_id
                                       );
                                     }}
                                     autoFocus
-                                  />) : (
+                                  />
+                                ) : (
                                   <>
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -462,7 +555,9 @@ export default function ListTable() {
                                       viewBox="0 -960 960 960"
                                       width="20px"
                                       fill="#000"
-                                      onClick={() => ftToggleClick(ft.feature_id)}
+                                      onClick={() =>
+                                        ftToggleClick(ft.feature_id)
+                                      }
                                       style={{ cursor: "pointer" }}
                                     >
                                       <path
@@ -487,17 +582,21 @@ export default function ListTable() {
                                       <input
                                         type="text"
                                         value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        onChange={(e) =>
+                                          setName(e.target.value)
+                                        }
                                         onKeyDown={(e) => {
                                           if (e.key === "Enter") {
-                                            (e.target as HTMLInputElement).blur(); // 엔터치면 blur로 확정
+                                            (
+                                              e.target as HTMLInputElement
+                                            ).blur(); // 엔터치면 blur로 확정
                                           }
                                         }}
                                         onBlur={() => {
                                           updateFeatureName(
                                             ft.category_id,
                                             ft.feature_id,
-                                            true,
+                                            true
                                           );
                                         }}
                                         autoFocus
@@ -579,40 +678,49 @@ export default function ListTable() {
                                 className="list-checkbox"
                                 checked={testCheckFt[ft.feature_id] || false}
                                 onChange={() =>
-                                  toggleTestCheckFt(ft.category_id, ft.feature_id)
+                                  toggleTestCheckFt(
+                                    ft.category_id,
+                                    ft.feature_id
+                                  )
                                 }
                               />
                             </td>
                           </tr>
 
                           {/* 액션 리스트 */}
-                          {
-                            clickFt[ft.feature_id] &&
+                          {clickFt[ft.feature_id] &&
                             featureActions.map((ac) => (
                               <tr
                                 key={ac.action_id}
-                                className={`ac-row ${isCompleted ? "completed" : ""
-                                  }`}
+                                className={`ac-row ${
+                                  isCompleted ? "completed" : ""
+                                }`}
                               >
                                 <td className="list-name">
                                   <div className="aclist-name">
-                                    {editingActionId === ac.action_id ? (<input
-                                      type="text"
-                                      value={name}
-                                      onChange={(e) => setName(e.target.value)}
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                          (e.target as HTMLInputElement).blur(); // 엔터치면 blur로 확정
+                                    {editingActionId === ac.action_id ? (
+                                      <input
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) =>
+                                          setName(e.target.value)
                                         }
-                                      }}
-                                      onBlur={() => {
-                                        updateActionName(
-                                          ac.feature_id,
-                                          ac.action_id
-                                        );
-                                      }}
-                                      autoFocus
-                                    />) : (
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Enter") {
+                                            (
+                                              e.target as HTMLInputElement
+                                            ).blur(); // 엔터치면 blur로 확정
+                                          }
+                                        }}
+                                        onBlur={() => {
+                                          updateActionName(
+                                            ac.feature_id,
+                                            ac.action_id
+                                          );
+                                        }}
+                                        autoFocus
+                                      />
+                                    ) : (
                                       <>
                                         <svg
                                           className="aclist-icon"
@@ -628,10 +736,14 @@ export default function ListTable() {
                                           <input
                                             type="text"
                                             value={name}
-                                            onChange={(e) => setName(e.target.value)}
+                                            onChange={(e) =>
+                                              setName(e.target.value)
+                                            }
                                             onKeyDown={(e) => {
                                               if (e.key === "Enter") {
-                                                (e.target as HTMLInputElement).blur(); // 엔터치면 blur로 확정
+                                                (
+                                                  e.target as HTMLInputElement
+                                                ).blur(); // 엔터치면 blur로 확정
                                               }
                                             }}
                                             onBlur={() => {
@@ -649,17 +761,21 @@ export default function ListTable() {
                                               title={ac.name}
                                               onClick={() =>
                                                 navigate(
-                                                  `/ws/${cg.workspace_id}/action/${ac.action_id}`
+                                                  `/ws/${cg.workspace_id}/post/action/${ac.action_id}`
                                                 )
                                               }
                                             >
                                               {ac.name}
                                             </span>
-                                            <button className="list-modifybtn"
+                                            <button
+                                              className="list-modifybtn"
                                               onClick={() => {
                                                 setName(ac.name);
-                                                setEditingActionId(ac.action_id);
-                                              }}>
+                                                setEditingActionId(
+                                                  ac.action_id
+                                                );
+                                              }}
+                                            >
                                               <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 height="20px"
@@ -703,7 +819,11 @@ export default function ListTable() {
                                     disable={isCompleted}
                                     onChange={(date) => {
                                       if (isCompleted) return;
-                                      updateStartDate(ac.feature_id, ac.action_id, date);
+                                      updateStartDate(
+                                        ac.feature_id,
+                                        ac.action_id,
+                                        date
+                                      );
                                     }}
                                   />
                                 </td>
@@ -713,7 +833,11 @@ export default function ListTable() {
                                     disable={isCompleted}
                                     onChange={(date) => {
                                       if (isCompleted) return;
-                                      updateEndDate(ac.feature_id, ac.action_id, date);
+                                      updateEndDate(
+                                        ac.feature_id,
+                                        ac.action_id,
+                                        date
+                                      );
                                     }}
                                   />
                                 </td>
@@ -726,7 +850,11 @@ export default function ListTable() {
                                     onChange={(newParti) => {
                                       if (isCompleted) return;
                                       // 상태 업데이트
-                                      updateAssignee(ac.feature_id, ac.action_id, newParti);
+                                      updateAssignee(
+                                        ac.feature_id,
+                                        ac.action_id,
+                                        newParti
+                                      );
                                     }}
                                   />
                                 </td>
@@ -739,7 +867,11 @@ export default function ListTable() {
                                     onChange={(newStatus) => {
                                       if (isCompleted) return;
 
-                                      updateStatus(ac.feature_id, ac.action_id, newStatus)
+                                      updateStatus(
+                                        ac.feature_id,
+                                        ac.action_id,
+                                        newStatus
+                                      );
                                     }}
                                   />
                                 </td>
@@ -749,7 +881,11 @@ export default function ListTable() {
                                     onChange={(newVal) => {
                                       if (isCompleted) return;
                                       // 상태 업데이트
-                                      updateImportance(ac.feature_id, ac.action_id, newVal);
+                                      updateImportance(
+                                        ac.feature_id,
+                                        ac.action_id,
+                                        newVal
+                                      );
                                     }}
                                   />
                                 </td>
@@ -760,24 +896,24 @@ export default function ListTable() {
                                     className="list-checkbox"
                                     checked={testCheckAc[ac.action_id] || false}
                                     onChange={() =>
-                                      toggleTestCheckAc(ac.feature_id, ac.action_id)
+                                      toggleTestCheckAc(
+                                        ac.feature_id,
+                                        ac.action_id
+                                      )
                                     }
                                   />
                                 </td>
                               </tr>
-                            ))
-                          }
+                            ))}
                         </React.Fragment>
                       );
-                    })
-                  }
+                    })}
                 </React.Fragment>
               );
             })}
           </tbody>
-        </table >
-
-        )}
-    </div >
+        </table>
+      )}
+    </div>
   );
 }

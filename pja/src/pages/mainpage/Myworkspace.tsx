@@ -141,13 +141,36 @@ export function Myworkspace() {
   const activeHandlers = useDragScroll(activeRef);
   const completeHandlers = useDragScroll(completeRef);
 
+  const getStepIdFromNumber = (stepNum: number): string => {
+    switch (stepNum) {
+      case 0:
+        return "idea";
+      case 1:
+        return "requirements";
+      case 2:
+        return "erd";
+      case 3:
+        return "api";
+      case 4:
+      case 5:
+        return "develop";
+      case 6:
+        return "complete";
+      default:
+        return "idea"; // fallback
+    }
+  };
+
   const renderCards = (data: workspace[]) =>
     data.map((ws) => (
       <div
         key={ws.workspace_id}
         className="workspace-card"
         onDoubleClick={() => {
-          if (!editId) navigate(`/ws/${ws.workspace_id}/step/${ws.progress_step}`);
+          if (!editId) {
+            const stepId = getStepIdFromNumber(ws.progress_step);
+            navigate(`/ws/${ws.workspace_id}/step/${stepId}`);
+          }
         }}
       >
         <div>
@@ -283,14 +306,15 @@ export function Myworkspace() {
             )}
           </div>
         </div>
-        <div ref={editId === ws.workspace_id ? editTeamRef : null}
-          className="workspace-team">
+        <div
+          ref={editId === ws.workspace_id ? editTeamRef : null}
+          className="workspace-team"
+        >
           {editId === ws.workspace_id ? (
             <input
               type="text"
               value={editTeam}
               onChange={(e) => setEditTeam(e.target.value)}
-
             />
           ) : (
             <p>{ws.team_name}</p>

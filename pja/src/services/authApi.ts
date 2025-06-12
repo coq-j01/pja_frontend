@@ -1,45 +1,19 @@
 import api from "../lib/axios";
-
-// 로그인 성공 응답 타입
-export interface LoginSuccessResponse {
-  status: "success";
-  message: string;
-  data: {
-    accessToken: string;
-    refreshToken: string;
-  };
-}
-
-// 로그인 실패 응답 타입
-export interface LoginErrorResponse {
-  status: "fail" | "error";
-  message: string;
-}
+import type { ApiResponse } from "../types/common";
+import type { userToken } from "../types/auth";
 
 export const login = async (
   uid: string,
   password: string
-): Promise<LoginSuccessResponse> => {
-  const response = await api.post<LoginSuccessResponse>("/auth/login", {
+): Promise<ApiResponse<userToken>> => {
+  const response = await api.post<ApiResponse<userToken>>("/auth/login", {
     uid,
     password,
   });
   return response.data;
 };
 
-//로그아웃 응답 타입
-export interface LogoutResponse {
-  status: "success" | "fail" | "error";
-  message: string;
-  data?: null;
-}
-
-export interface LogoutError {
-  status: "fail" | "error";
-  message: string;
-}
-
-export const logoutUser = async (): Promise<LogoutResponse> => {
+export const logoutUser = async (): Promise<ApiResponse<void>> => {
   try {
     const response = await api.post("/auth/logout");
     return response.data;
@@ -62,9 +36,13 @@ export const logoutUser = async (): Promise<LogoutResponse> => {
 };
 
 //토큰 재요청
-export const refreshAccessToken = async () => {
+export const refreshAccessToken = async (): Promise<
+  ApiResponse<{ accessToken: string }>
+> => {
   try {
     const response = await api.post("/auth/reissue");
+    console.log("response : ", response);
+
     return response.data; // { accessToken: "..." }
   } catch (error: any) {
     console.error("🔴 [refreshAccessToken] 토큰 재발급 실패:", error);

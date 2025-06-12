@@ -15,14 +15,13 @@ import DevelopmentPage from "../developmentpage/DevelopmentPage";
 import { ReactFlowProvider } from "reactflow";
 
 export default function MainWSPage() {
-  const { wsid, stepNumber } = useParams<{
+  const { wsid, stepId } = useParams<{
     wsid: string;
-    stepNumber: string;
+    stepId: string;
   }>();
   const dispatch = useDispatch();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showIcon, setShowIcon] = useState(false);
-  const step = Number(stepNumber ?? 0);
 
   useEffect(() => {
     const selectws: workspace | undefined = dummyWorkspaces.find(
@@ -32,6 +31,28 @@ export default function MainWSPage() {
       dispatch(setSelectedWS(selectws));
     }
   }, [wsid, dispatch]);
+
+  const renderStepComponent = () => {
+    switch (stepId) {
+      case "idea":
+        return <IdeaPage />;
+      case "requirements":
+        return <RequirementsPage />;
+      case "erd":
+        return (
+          <ReactFlowProvider>
+            <ERDPage />
+          </ReactFlowProvider>
+        );
+      case "api":
+        return <ApiPage />;
+      case "develop":
+      case "complete":
+        return <DevelopmentPage />;
+      default:
+        return <div>잘못된 스텝입니다.</div>;
+    }
+  };
 
   return (
     <div className="mainws-container">
@@ -64,17 +85,7 @@ export default function MainWSPage() {
           </div>
         </div>
       )}
-      <div className="wscontent-container">
-        {step === 0 && <IdeaPage />}
-        {step === 1 && <RequirementsPage />}
-        {step === 2 && (
-          <ReactFlowProvider>
-            <ERDPage />
-          </ReactFlowProvider>
-        )}
-        {step === 3 && <ApiPage />}
-        {(step === 4 || step === 5 || step == 6) && <DevelopmentPage />}
-      </div>
+      <div className="wscontent-container">{renderStepComponent()}</div>
     </div>
   );
 }

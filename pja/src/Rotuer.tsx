@@ -20,12 +20,10 @@ const Router = () => {
       {/* 기본 경로에서 토큰이 있으면 메인, 없으면 로그인으로 리다이렉트 */}
       <Route path="/" element={<RootRedirect />} />
 
-
       {/* 공개 라우트 */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
-      <Route path="/oauth2/success" element={<OAuth2Success />}
-      />
+      <Route path="/oauth2/success" element={<OAuth2Success />} />
       {/* 이메일 인증 페이지 */}
       <Route path="/email-verification" element={<EmailVerificationPage />} />
       <Route path="/find-id" element={<FindIdPage />} />
@@ -49,7 +47,7 @@ const Router = () => {
         }
       />
       <Route
-        path="/ws/:wsid/step/:stepNumber"
+        path="/ws/:wsid/step/:stepId"
         element={
           <PrivateRoute>
             <MainWSPage />
@@ -57,7 +55,7 @@ const Router = () => {
         }
       />
       <Route
-        path="/ws/:wsid/action/:acId"
+        path="/ws/:wsid/post/action/:acId"
         element={
           <PrivateRoute>
             <ActionPostPage />
