@@ -9,15 +9,15 @@ interface StatusCellProps {
 }
 
 const statusLabels: Record<Status, string> = {
-  NOT_STARTED: "진행 전",
+  BEFORE: "진행 전",
   IN_PROGRESS: "진행 중",
-  COMPLETED: "완료",
+  DONE: "완료",
 };
 
 const statusColors: Record<Status, string> = {
-  NOT_STARTED: "#d9d9d6",
+  BEFORE: "#d9d9d6",
   IN_PROGRESS: "#fec300",
-  COMPLETED: "#fe5000",
+  DONE: "#fe5000",
 };
 
 export const ActionStatusCell = ({
@@ -37,21 +37,19 @@ export const ActionStatusCell = ({
     <div className="status-td">
       {isEditing && !disable ? (
         <div className="status-dropdown">
-          {(["NOT_STARTED", "IN_PROGRESS", "COMPLETED"] as Status[]).map(
-            (s) => (
-              <div
-                key={s}
-                className="status-option"
-                onClick={() => handleSelect(s)}
-              >
-                <span
-                  className="status-dot"
-                  style={{ backgroundColor: statusColors[s] }}
-                />
-                <span>{statusLabels[s]}</span>
-              </div>
-            )
-          )}
+          {(["BEFORE", "IN_PROGRESS", "DONE"] as Status[]).map((s) => (
+            <div
+              key={s}
+              className="status-option"
+              onClick={() => handleSelect(s)}
+            >
+              <span
+                className="status-dot"
+                style={{ backgroundColor: statusColors[s] }}
+              />
+              <span>{statusLabels[s]}</span>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="status-display" onClick={() => setIsEditing(true)}>

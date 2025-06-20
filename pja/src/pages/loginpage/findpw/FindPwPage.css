@@ -54,6 +54,10 @@
   border-radius: 4px;
 }
 
+input-wrapper input:focus {
+  outline: none;
+}
+
 .error {
   color: red;
   font-size: 13px;
@@ -81,14 +85,24 @@
   font-size: 14px;
 }
 
-.button-item {
+/*확인 버튼*/
+.pw-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background-color: #001e60;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+.pw-button-item {
   position: absolute;
   display: flex;
-  right: -35%;
+  right: -20%;
   top: 0;
 }
-.btn.confirm {
-  margin-right: 10px;
+.pw-btn.confirm {
+  margin-left: -10px;
   font-size: 14px;
 }
 
@@ -111,10 +125,16 @@
   height: 15px;
   cursor: pointer;
 }
-.find-id-input {
+.find-pw-input {
   width: 400px;
   height: 20px;
   padding-left: 45px;
+  background-color: white;
+}
+
+input.find-pw-input:read-only {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
 }
 
 .tooltip-wrapper {
@@ -140,7 +160,7 @@
 .findpw-clear-id-icon {
   position: absolute;
   top: 50%;
-  right: -30px;
+  right: 10px;
   transform: translateY(-50%);
   height: 100%; /* 입력창 높이에 맞춤 */
   padding: 0;
@@ -153,7 +173,7 @@
 .findpw-clear-email-icon {
   position: absolute;
   top: 50%;
-  right: -30px;
+  right: 10px;
   transform: translateY(-50%);
   height: 100%; /* 입력창 높이에 맞춤 */
   padding: 0;
@@ -161,4 +181,9 @@
   border: none;
   cursor: pointer;
   color: #9ca3af;
+}
+
+.success {
+  color: blue;
+  margin-top: 8px;
 }

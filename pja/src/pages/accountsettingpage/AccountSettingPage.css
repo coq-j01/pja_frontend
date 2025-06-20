@@ -120,7 +120,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
+  margin-top: 20px;
   min-width: 60px;
   width: auto;
   height: 40px;
@@ -241,11 +241,12 @@
   display: flex;
   justify-content: center;
   top: 0;
+  margin-top: 20px;
   right: -60px;
   transform: translateX(50%);
 }
 
-.profile.new.btn.confirm {
+.profile-new-btn-confirm {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,6 +256,7 @@
   height: 40px;
   padding: 0 15px;
 
+  background-color: #00205b;
   color: white;
   font-size: 14px;
   font-weight: bold;

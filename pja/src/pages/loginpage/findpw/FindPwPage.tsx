@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import React from "react";
 import "./FindPwPage.css";
 import logoImage from "../../../assets/img/logo.png";
@@ -6,12 +7,27 @@ import findPwIcon from "../../../assets/img/findPw.png";
 import findEmailIcon from "../../../assets/img/findEmail.png";
 import authIcon from "../../../assets/img/auth.png";
 import alertIcon from "../../../assets/img/alert.png";
+import {
+  requestPasswordCode,
+  verifyPasswordCode,
+} from "../../../services/authApi";
+//import { verify } from "crypto";
 
 const FindPwPage: React.FC = () => {
   const [clickBtn, setClickBtn] = useState(false);
-  const [id, setId] = useState("");
-  const [email, setEmail] = useState("");
-  const [authcode, setAuthcode] = useState("");
+  const [id, setId] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+
+  //API 연동을 위한 상태
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isCodeSent, setIsCodeSent] = useState(false);
+  //인증번호 코드
+  const [authcode, setAuthcode] = useState<string>("");
+  const [isVerified, setIsVerified] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleIdChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -32,6 +48,79 @@ const FindPwPage: React.FC = () => {
   //삭제 아이콘 클릭 시 이메일 값을 빈 문자열로 설정
   const handleClearAuthcode = () => setAuthcode("");
 
+  //인증번호 받기 버튼 클릭 핸들러
+  const handleRequestCode = async () => {
+    //기본 유효성 검사
+    if (!id || !email) {
+      setError("아이디와 이메일을 모두 입력해주세요");
+      setSuccessMessage(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await requestPasswordCode(id, email);
+      setSuccessMessage(response.message); //인증번호 발송 성공
+
+      setIsCodeSent(true);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("알 수 없는 오류가 발생했습니다");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //인증번호 확인
+  const handleVerifyCode = async () => {
+    if (!authcode.trim()) {
+      setError("인증번호를 입력해주세요");
+      setSuccessMessage(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      //API 함수 호출 시 사용자가 입력한 authCode 값을 'token'로 전달
+      const response = await verifyPasswordCode(email, authcode);
+
+      setSuccessMessage(response.message); //인증이 안료되었습니다
+      setIsVerified(true);
+      setError(null);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("알 수 없는 오류가 발생했습니다");
+      }
+      setIsVerified(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //비밀번호 재설정 버튼 클릭
+  const handleResetPassword = () => {
+    //비밀번호 변경 페이지로 이동
+    navigate("/reset-password", {
+      state: {
+        uid: id,
+        email: email,
+        authcode: authcode,
+      },
+      replace: true,
+    });
+  };
+
   return (
     <div className="findpw-container">
       <img src={logoImage} alt="PJA Logo" className="logo" />
@@ -47,6 +136,9 @@ const FindPwPage: React.FC = () => {
             placeholder="아이디"
             value={id}
             onChange={handleIdChange}
+            className="find-pw-input"
+            autoComplete="off"
+            readOnly={isVerified}
           />
           {id && (
             <button
@@ -84,6 +176,9 @@ const FindPwPage: React.FC = () => {
             placeholder="이메일"
             value={email}
             onChange={handleEmailChange}
+            className="find-pw-input"
+            autoComplete="off"
+            readOnly={isVerified}
           />
           {email && (
             <button
@@ -109,12 +204,22 @@ const FindPwPage: React.FC = () => {
           )}
 
           <div className="button-group">
-            {!clickBtn && <button className="btn small">인증번호 받기</button>}
-            {clickBtn && (
-              <button className="btn small">인증번호 다시 보내기</button>
-            )}
+            <button
+              className="btn small"
+              onClick={handleRequestCode}
+              disabled={loading}
+            >
+              {loading
+                ? "전송 중"
+                : isCodeSent
+                ? "인증번호 다시 보내기"
+                : "인증번호 받기"}
+            </button>
           </div>
         </div>
+        {/*성공 or 에러 메세지 표시*/}
+        {successMessage && <p className="success">{successMessage}</p>}
+        {error && <p className="error">{error}</p>}
       </div>
 
       <div className="form-group">
@@ -127,8 +232,12 @@ const FindPwPage: React.FC = () => {
             placeholder="인증번호를 입력하세요."
             value={authcode}
             onChange={handleAuthcodeChange}
+            readOnly={isVerified} //인증완료 시 수정 불가
+            autoComplete="off"
+            className="find-pw-input"
           />
-          {authcode && (
+
+          {authcode && !isVerified && (
             <button
               type="button"
               onClick={handleClearAuthcode}
@@ -151,11 +260,20 @@ const FindPwPage: React.FC = () => {
             </button>
           )}
 
-          <div className="button-item">
-            <button className="btn confirm">확인</button>
+          <div className="pw-button-item">
+            <button
+              className="pw-btn confirm"
+              onClick={handleVerifyCode}
+              disabled={loading || isVerified}
+            >
+              확인
+            </button>
           </div>
         </div>
-        {/* <p className="error">*인증번호가 틀렸습니다</p> */}
+        {/*인증 성공 시 메세지*/}
+        {isVerified && successMessage && (
+          <p className="success">{successMessage}</p>
+        )}
       </div>
 
       <div className="bottom-check">
@@ -173,7 +291,13 @@ const FindPwPage: React.FC = () => {
       </div>
 
       <div className="btn-container">
-        <button className="btn reset">비밀번호 재설정</button>
+        <button
+          className="btn reset"
+          disabled={!isVerified}
+          onClick={handleResetPassword}
+        >
+          비밀번호 재설정
+        </button>
       </div>
     </div>
   );

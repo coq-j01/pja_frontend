@@ -1,0 +1,251 @@
+.require-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 85%;
+  min-width: 800px;
+  gap: 5px;
+}
+
+.require-title {
+  width: 100%;
+  max-width: 980px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 5%;
+}
+
+.airequire-title {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 980px;
+  box-sizing: border-box;
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  padding: 0 5%;
+}
+
+.require-title p {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+}
+
+.require-aibtn {
+  padding: 5px;
+  min-width: 88px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  font-size: var(--font-size-lg);
+  background-color: #00205b;
+  color: white;
+  cursor: pointer;
+}
+
+.require-content {
+  display: flex;
+  width: 100%;
+  flex-grow: 1;
+  flex-direction: row;
+  justify-content: center;
+  box-sizing: border-box;
+  gap: 5%;
+  padding: 2% 5%;
+}
+
+.require-content-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  min-width: 300px;
+  height: 98%;
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.require-content-title {
+  background-color: #00205b;
+  color: white;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  padding: 5px;
+}
+
+.require-content-title p {
+  text-align: center;
+  font-size: var(--font-size-xl);
+  margin: 0;
+}
+
+.require-content-line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.require-add-button {
+  display: flex;
+  background-color: transparent;
+  flex-direction: row;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+  gap: 5px;
+  margin-left: 5px;
+}
+
+.require-add-button svg {
+  background-color: #d9d9d6;
+  border-radius: 5px;
+}
+
+.require-add-button p {
+  font-size: var(--font-size-base);
+  color: #909090;
+}
+
+.require-btn {
+  position: relative;
+  border-radius: 6px;
+  background-color: #fe5000;
+  color: white;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.require-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background-color: white;
+  color: black;
+  top: 20%;
+  left: 110%;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.require-btn p {
+  margin: 0;
+}
+
+.require-lists {
+  padding: 5px 0;
+  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.require-lists ul {
+  margin: 0;
+  padding-right: 5px;
+}
+
+.require-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.require-list input {
+  width: 100%;
+}
+
+.require-list li {
+  width: 90%;
+  word-break: break-word;
+  /* 문장 줄바꿈되게 */
+}
+
+.require-list svg {
+  display: none;
+  /*기본은 숨김*/
+  cursor: pointer;
+}
+
+.require-list:hover svg {
+  display: inline;
+  /* hover 시 보임 */
+}
+
+.airequire-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: space-between;
+  margin-top: 5px;
+  color: #8f8f8f;
+}
+
+.airequire-wrapper {
+  display: inline;
+  width: 100%;
+}
+
+.airequire-text {
+  margin-right: 5px;
+}
+
+.airequire-actions {
+  display: inline-flex;
+  /* ✅ 텍스트 뒤에 버튼들 한 줄로 나란히 */
+  gap: 4px;
+}
+
+.airequire-accept-btn,
+.airequire-cancel-btn {
+  padding: 3px 4px;
+  border: none;
+  border-radius: 6px;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.airequire-accept-btn {
+  background-color: #fe5000;
+  color: white;
+}
+
+.airequire-cancel-btn {
+  background-color: #d9d9d6;
+  color: black;
+}
+
+/* 텍스트 애니메이션 부분 */
+.wave-text span {
+  display: inline-block;
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}

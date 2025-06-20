@@ -6,6 +6,7 @@ import emailLogoImage from "../../../assets/img/emailLogo.png";
 import verficatedemailIcon from "../../../assets/img/verficatedemail.png";
 import hintIcon from "../../../assets/img/hint.png";
 import CustomModal from "../CustomModal";
+import api from "../../../lib/axios";
 
 interface EmailVerificationApiResponse {
   status: string;
@@ -63,8 +64,8 @@ const EmailVerificationPage: React.FC = () => {
       //   }
       // );
 
-      const response = await axios.post(
-        `http://localhost:8080/api/auth/verify-email`,
+      const response = await api.post(
+        `/auth/verify-email`,
         {
           email: userEmail,
           token: verificationToken,
@@ -77,7 +78,7 @@ const EmailVerificationPage: React.FC = () => {
       );
 
       if (response.status === 200 && response.data.status === "success") {
-        openModal("이메일 인증이 완료되었습니다!");
+        openModal("회원가입이 완료되었습니다!");
         // 로그인 페이지로 이동
         window.location.href = "/login";
       } else {
@@ -115,8 +116,8 @@ const EmailVerificationPage: React.FC = () => {
 
     setIsResending(true);
     try {
-      const response = await axios.post(
-        `http://localhost:8080/api/auth/send-email`,
+      const response = await api.post(
+        `/auth/send-email`,
         { email: userEmail },
         {
           headers: {
@@ -203,7 +204,7 @@ const EmailVerificationPage: React.FC = () => {
           </div>
           <div className="verification-message">
             <span className="first-line">
-              해당 이메일로 인증 토큰이 발송되었습니다😄
+              해당 이메일로 인증 번호가 발송되었습니다😄
             </span>
             <br />
           </div>

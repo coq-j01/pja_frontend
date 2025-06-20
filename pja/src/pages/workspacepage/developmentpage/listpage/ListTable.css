@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: space-around;
   flex-direction: row;
-  background-color: #00205B;
+  background-color: #00205b;
   border: none;
   color: white;
   padding: 5px;
@@ -223,6 +223,9 @@
   white-space: nowrap;
   cursor: pointer;
 }
+.ftlist-name {
+  position: relative;
+}
 
 .cglist-name div,
 .ftlist-name div,
@@ -231,7 +234,6 @@
   flex: 1;
   justify-content: flex-end;
 }
-
 .list-addbtn {
   display: flex;
   display: none;
@@ -285,7 +287,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 370px;
+  min-width: 300px;
   box-sizing: border-box;
   background-color: white;
   border: 1px solid #ccc;
@@ -373,7 +375,6 @@
   cursor: pointer;
 }
 
-
 .filter-apply-btn {
   height: 30px;
 }
@@ -394,4 +395,52 @@
   border-radius: 50%;
   font-size: var(--font-size-xs);
   background-color: #bbc9ec;
+}
+
+.action-menu {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  right: 0;
+  top: 100%;
+  padding: 0px;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.action-menu button {
+  display: block;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
+.action-menu button:hover {
+  background-color: #f0f0f0;
+}
+
+.ailist-deletebtn {
+  display: flex;
+  border-radius: 3px;
+  background-color: #d9d9d6;
+  cursor: pointer;
+  color: black;
+  text-align: center;
+  border: none;
+}
+
+.ailist-addbtn {
+  display: flex;
+  border-radius: 3px;
+  background-color: #fe5000;
+  cursor: pointer;
+  color: white;
+  text-align: center;
+  border: none;
 }

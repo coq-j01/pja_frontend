@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "proxy": "http://13.125.204.95:8080"
+    
   }
 }

@@ -1,8 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import type { workspace } from "../../../types/workspace";
 import { setSelectedWS } from "../../../store/workspaceSlice";
-import { dummyWorkspaces } from "../../../constants/wsconstants";
+import { getworkspace } from "../../../services/workspaceApi";
 import WsSidebar from "../../../components/sidebar/WsSidebar";
 import "./MainWSPage.css";
 import { useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import RequirementsPage from "../requirementpage/RequirementsPage";
 import ERDPage from "../erdpage/ERDPage";
 import ApiPage from "../apispecpage/ApiPage";
 import DevelopmentPage from "../developmentpage/DevelopmentPage";
+import ProjectSummaryPage from "../projectsummarypage/ProjectSummaryPage";
 import { ReactFlowProvider } from "reactflow";
 
 export default function MainWSPage() {
@@ -19,25 +19,33 @@ export default function MainWSPage() {
     wsid: string;
     stepId: string;
   }>();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); //redux에 값 저장하는 함수 필요
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showIcon, setShowIcon] = useState(false);
 
   useEffect(() => {
-    const selectws: workspace | undefined = dummyWorkspaces.find(
-      (ws) => ws.workspace_id === Number(wsid)
-    );
-    if (selectws) {
-      dispatch(setSelectedWS(selectws));
-    }
-  }, [wsid, dispatch]);
-
+    const getws = async () => {
+      try {
+        const response = await getworkspace(Number(wsid));
+        console.log("getworkspace 결과 : ", response);
+        //redux저장
+        if (response.data) {
+          dispatch(setSelectedWS(response.data));
+        }
+      } catch (err) {
+        console.log("getworkspace 실패 : ", err);
+      }
+    };
+    getws();
+  }, [wsid]);
   const renderStepComponent = () => {
     switch (stepId) {
       case "idea":
         return <IdeaPage />;
       case "requirements":
         return <RequirementsPage />;
+      case "project":
+        return <ProjectSummaryPage />;
       case "erd":
         return (
           <ReactFlowProvider>

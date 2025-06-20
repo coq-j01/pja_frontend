@@ -11,7 +11,10 @@ export default defineConfig({
   server: {
     https: {},
     proxy: {
-      "/api": "http://localhost:8080",
+      "/api": {
+        target: "http://13.125.204.95:8080",
+        // 배포하면 proxy삭제해도 됨
+      },
     },
   },
 });

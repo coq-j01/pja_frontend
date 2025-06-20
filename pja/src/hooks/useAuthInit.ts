@@ -32,11 +32,30 @@ function isTokenExpired(token: string): boolean {
   }
 }
 
+//api 호출 시 타임 아웃 걸기
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error("Timeout"));
+    }, timeoutMs);
+
+    promise
+      .then((res) => {
+        clearTimeout(timeoutId);
+        resolve(res);
+      })
+      .catch((err) => {
+        clearTimeout(timeoutId);
+        reject(err);
+      });
+  });
+}
+
 export function useAuthInit() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const TIMEOUT_MS = 5000; //5초
 
-  //토큰이 저장되는 동안 privateroute에서 토큰이 없다고 판단해서 리다이렉트된 것 같음
   const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
@@ -46,9 +65,10 @@ export function useAuthInit() {
         const token = localStorage.getItem("accessToken");
 
         if (!token || isTokenExpired(token)) {
-          const response = await refreshAccessToken(); // 새 토큰 요청
+          console.log("토큰 갱신 시작");
+          const response = await withTimeout(refreshAccessToken(), TIMEOUT_MS); //새 토큰 요청
           const accessToken = response.data?.accessToken;
-          console.log("date :", accessToken);
+          console.log("data :", accessToken);
           if (!accessToken) {
             console.warn("accessToken이 없음 - 토큰 갱신 실패 처리");
             throw new Error("토큰 갱신 실패 - accessToken 없음");
@@ -60,10 +80,14 @@ export function useAuthInit() {
           console.log("유효한 토큰");
           dispatch(setAccessToken(token));
         }
-      } catch (err) {
-        console.warn("토큰 갱신 실패", err);
+      } catch (err: any) {
+        if (err.message === "Timeout") {
+          console.warn("토큰 갱신 요청 타임아웃 발생");
+        } else {
+          console.warn("토큰 갱신 실패", err);
+        }
         dispatch(clearAccessToken());
-        // window.location.href = "/login";
+        setAuthInitialized(true);
         return;
       }
       setAuthInitialized(true);

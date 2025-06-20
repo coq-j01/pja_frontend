@@ -1,12 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import "./AccountSettingPage.css";
 import profileIcon from "../../assets/img/profile.png";
 import profilepersonIcon from "../../assets/img/profileperson.png";
 import profilelockIcon from "../../assets/img/profilelock.png";
 import { validateNewPassword } from "./newPasswordValidator";
+import {
+  getuser,
+  updateProfileImage,
+  changePassword,
+  changeName,
+} from "../../services/userApi";
+import type { user } from "../../types/user";
+
+interface ChangeNameRequest {
+  newName: string;
+}
 
 const AccountSettingPage: React.FC = () => {
+  const [initialName, setInitialName] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
@@ -18,6 +30,61 @@ const AccountSettingPage: React.FC = () => {
 
   //비밀번호 중복 확인
   const [isPasswordChecked, setIsPasswordChecked] = useState<boolean>(false);
+
+  //로딩 및 에러 상태
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
+  const [userInfo, setUserInfo] = useState<user | null>(null);
+
+  //비밀번호 유효성 검사 상태
+  const [passwordValidation, setPasswordValidation] = useState<{
+    isValid: boolean;
+    message: string;
+  }>({ isValid: false, message: "" });
+
+  //비밀번호 유효성 검사 상태
+  const [confirmPasswordValidation, setConfirmPasswordValidation] = useState<{
+    isValid: boolean;
+    message: string;
+  }>({ isValid: true, message: "" });
+
+  useEffect(() => {
+    // API 호출을 위한 별도의 함수를 정의하고 즉시 실행
+    const loadUserInfo = async () => {
+      try {
+        setIsLoading(true);
+
+        const userData = await getuser();
+
+        // API 응답에 맞춰 상태를 업데이트합니다. (username -> name)
+        if (userData.data) {
+          setName(userData.data.username);
+          setInitialName(userData.data.username);
+          setProfileImage(userData.data.profileImage);
+        }
+      } catch (err: any) {
+        // fetchUserInfoAPI에서 던진 에러를 여기서 잡습니다.
+        setError(
+          err.message || "사용자 정보 조회 중 알 수 없는 오류가 발생했습니다."
+        );
+      } finally {
+        // 성공하든 실패하든 로딩 상태를 해제합니다.
+        setIsLoading(false);
+      }
+    };
+    loadUserInfo();
+  }, []); // 빈 배열을 전달하여 컴포넌트가 처음 렌더링될 때 한 번만 실행되도록 합니다.
+
+  // 로딩 중일 때 보여줄 UI
+  if (isLoading) {
+    return <div className="loading-message">정보를 불러오는 중입니다...</div>;
+  }
+
+  // 에러 발생 시 보여줄 UI
+  if (error) {
+    return <div className="error-message">오류: {error}</div>;
+  }
 
   const handleNameChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -57,18 +124,6 @@ const AccountSettingPage: React.FC = () => {
     setConfirmPasswordValidation(confirmValidation);
   };
 
-  //비밀번호 유효성 검사 상태
-  const [passwordValidation, setPasswordValidation] = useState<{
-    isValid: boolean;
-    message: string;
-  }>({ isValid: false, message: "" });
-
-  //비밀번호 유효성 검사 상태
-  const [confirmPasswordValidation, setConfirmPasswordValidation] = useState<{
-    isValid: boolean;
-    message: string;
-  }>({ isValid: true, message: "" });
-
   //비밀번호 확인 검증 함수
   const validatePasswordConfirmation = (
     newPassword: string,
@@ -93,11 +148,49 @@ const AccountSettingPage: React.FC = () => {
     };
   };
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleNameChangeSubmit = async () => {
+    if (!name.trim()) {
+      alert("이름을 입력해주세요.");
+      return;
+    }
+    if (name === initialName) {
+      alert("새로운 이름이 기존 이름과 동일합니다.");
+      return;
+    }
+
+    try {
+      await changeName({ newName: name });
+      alert("이름이 성공적으로 변경되었습니다.");
+      // 성공 시, 초기 이름 상태도 업데이트하여 중복 요청을 방지합니다.
+      setInitialName(name);
+    } catch (err: any) {
+      alert(
+        `이름 변경에 실패했습니다: ${
+          err.response?.data?.message || err.message
+        }`
+      );
+      // 실패 시, 입력 필드의 값을 원래 이름으로 되돌립니다.
+      setName(initialName);
+    }
+  };
+
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      //미리보기 이미지
       const imageUrl = URL.createObjectURL(file);
       setProfileImage(imageUrl);
+      //이미지 변경 api 호출
+      try {
+        await updateProfileImage(file);
+        alert("프로필 이미지가 성공적으로 변경되었습니다");
+      } catch (err: any) {
+        alert(
+          `프로필 이미지 변경에 실패했습니다: ${
+            err.response?.data?.message || err.message
+          }`
+        );
+      }
     }
   };
 
@@ -118,6 +211,45 @@ const AccountSettingPage: React.FC = () => {
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword);
   };
+
+  //비밀번호 변경 버튼
+  const handlePasswordChangeSubmit = async () => {
+    // 1. 프론트엔드 유효성 검사
+    if (!password || !newPassword || !confirmNewPassword) {
+      alert("모든 비밀번호 필드를 입력해주세요.");
+      return;
+    }
+    if (!passwordValidation.isValid) {
+      alert(`새 비밀번호가 유효하지 않습니다: ${passwordValidation.message}`);
+      return;
+    }
+    if (!confirmPasswordValidation.isValid) {
+      alert(confirmPasswordValidation.message);
+      return;
+    }
+
+    // 2. API 호출
+    try {
+      await changePassword({
+        currentPw: password,
+        newPw: newPassword,
+        confirmPw: confirmNewPassword,
+      });
+      alert("비밀번호가 성공적으로 변경되었습니다.");
+      // 성공 시 입력 필드 초기화
+      setPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (err: any) {
+      // API 에러 메시지를 사용자에게 표시
+      alert(
+        `비밀번호 변경에 실패했습니다: ${
+          err.response?.data?.message || err.message
+        }`
+      );
+    }
+  };
+
   return (
     <div>
       <div className="accountsetting-wrapper">
@@ -131,6 +263,7 @@ const AccountSettingPage: React.FC = () => {
               className="profile-image"
               style={{
                 backgroundImage: profileImage ? `url(${profileImage})` : "none",
+                backgroundColor: profileImage ? "transparent" : "#f0f0f0",
               }}
             ></div>
             <label htmlFor="imageUpload" className="image-upload-button">
@@ -144,6 +277,7 @@ const AccountSettingPage: React.FC = () => {
               style={{ display: "none" }}
             />
           </div>
+
           <div className="profile-input-section">
             <div className="profile-input-wrapper">
               <div className="profile-name-title">이름</div>
@@ -182,14 +316,21 @@ const AccountSettingPage: React.FC = () => {
                     </svg>
                   </button>
                 )}
-                <div className="profile-button-item">
-                  <button className="profile btn confirm">변경</button>
-                </div>
+              </div>
+              <div className="profile-button-item">
+                <button
+                  className="profile btn confirm"
+                  onClick={handleNameChangeSubmit}
+                >
+                  변경
+                </button>
               </div>
             </div>
+
             <div className="profile-pw-change-wrapper">
               <div className="pw-change-title">비밀번호 변경</div>
-              {/*현재 비밀번호*/}
+
+              {/* 현재 비밀번호 */}
               <div className="profile-pw-input-wrapper">
                 <div className="profile-pw-title">현재 비밀번호</div>
                 <div className="profile-pw-wrapper">
@@ -199,23 +340,22 @@ const AccountSettingPage: React.FC = () => {
                     className="profile-pw-icon-inside"
                   />
                   <input
-                    type={showPassword ? "text" : "password"} /*tetx와 passord*/
+                    type={showPassword ? "text" : "password"}
                     placeholder="비밀번호"
                     className="profile-pw-input"
                     value={password}
                     onChange={handlePasswordChange}
                   />
-                  {/*비밀번호 보이기/숨기기 버튼*/}
+                  {/* 비밀번호 보이기/숨기기 버튼 */}
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="visibility-toggle-icon" /* 새 CSS 클래스 */
+                    className="visibility-toggle-icon"
                     aria-label={
                       showPassword ? "비밀번호 숨기기" : "비밀번호 보기"
                     }
                   >
                     {showPassword ? (
-                      // 비밀번호가 보일 때 (숨기기 아이콘 - 예: 사선 그어진 눈)
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -229,7 +369,6 @@ const AccountSettingPage: React.FC = () => {
                         <line x1="1" y1="1" x2="23" y2="23"></line>
                       </svg>
                     ) : (
-                      // 비밀번호가 숨겨져 있을 때 (보이기 아이콘 - 예: 일반 눈)
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -245,7 +384,6 @@ const AccountSettingPage: React.FC = () => {
                       </svg>
                     )}
                   </button>
-
                   {password && (
                     <button
                       type="button"
@@ -270,7 +408,8 @@ const AccountSettingPage: React.FC = () => {
                   )}
                 </div>
               </div>
-              {/*새 비밀번호*/}
+
+              {/* 새 비밀번호 */}
               <div className="profile-new-pw-input-wrapper">
                 <div className="profile-new-pw-title">새 비밀번호</div>
                 <div className="profile-new-pw-wrapper">
@@ -286,17 +425,15 @@ const AccountSettingPage: React.FC = () => {
                     value={newPassword}
                     onChange={handleNewPasswordChange}
                   />
-                  {/*비밀번호 보이기/숨기기 버튼*/}
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="visibility-toggle-icon" /* 새 CSS 클래스 */
+                    className="visibility-toggle-icon"
                     aria-label={
                       showPassword ? "비밀번호 숨기기" : "비밀번호 보기"
                     }
                   >
                     {showPassword ? (
-                      // 비밀번호가 보일 때 (숨기기 아이콘 - 예: 사선 그어진 눈)
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -310,7 +447,6 @@ const AccountSettingPage: React.FC = () => {
                         <line x1="1" y1="1" x2="23" y2="23"></line>
                       </svg>
                     ) : (
-                      // 비밀번호가 숨겨져 있을 때 (보이기 아이콘 - 예: 일반 눈)
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -349,13 +485,15 @@ const AccountSettingPage: React.FC = () => {
                     </button>
                   )}
                 </div>
-                {/*유효성 검사*/}
+                {/* 유효성 검사 */}
                 {!passwordValidation.isValid && newPassword && (
                   <div className="password-error-message">
                     {passwordValidation.message}
                   </div>
                 )}
               </div>
+
+              {/* 비밀번호 확인 */}
               <div className="profile-new-pwcf-input-wrapper">
                 <div className="profile-new-pwcf-title">비밀번호 확인</div>
                 <div className="profile-new-pwcf-wrapper">
@@ -371,17 +509,15 @@ const AccountSettingPage: React.FC = () => {
                     value={confirmNewPassword}
                     onChange={handleConfirmNewPasswordChange}
                   />
-                  {/*비밀번호 보이기/숨기기 버튼*/}
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="visibility-toggle-icon" /* 새 CSS 클래스 */
+                    className="visibility-toggle-icon"
                     aria-label={
                       showPassword ? "비밀번호 숨기기" : "비밀번호 보기"
                     }
                   >
                     {showPassword ? (
-                      // 비밀번호가 보일 때 (숨기기 아이콘 - 예: 사선 그어진 눈)
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -395,7 +531,6 @@ const AccountSettingPage: React.FC = () => {
                         <line x1="1" y1="1" x2="23" y2="23"></line>
                       </svg>
                     ) : (
-                      // 비밀번호가 숨겨져 있을 때 (보이기 아이콘 - 예: 일반 눈)
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -411,7 +546,7 @@ const AccountSettingPage: React.FC = () => {
                       </svg>
                     )}
                   </button>
-                  {newPassword && (
+                  {confirmNewPassword && (
                     <button
                       type="button"
                       onClick={handleClearConfirmNewPassword}
@@ -433,15 +568,20 @@ const AccountSettingPage: React.FC = () => {
                       </svg>
                     </button>
                   )}
-                  <div className="profile-new-button-item">
-                    <button className="profile new btn confirm">변경</button>
-                  </div>
                 </div>
                 {!confirmPasswordValidation.isValid && confirmNewPassword && (
                   <div className="password-error-message">
                     {confirmPasswordValidation.message}
                   </div>
                 )}
+                <div className="profile-new-button-item">
+                  <button
+                    className="profile-new-btn-confirm"
+                    onClick={handlePasswordChangeSubmit}
+                  >
+                    변경
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -450,5 +590,4 @@ const AccountSettingPage: React.FC = () => {
     </div>
   );
 };
-
 export default AccountSettingPage;

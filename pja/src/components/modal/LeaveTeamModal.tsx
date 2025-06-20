@@ -20,7 +20,7 @@ const LeaveTeamModal: FC<LeaveTeamModalProps> = ({ onConfirm, onClose }) => {
 
   return (
     <motion.div
-      className="modal-overlay"
+      className="leave-team-modal-overlay"
       onClick={handleOverlayClick}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -28,19 +28,22 @@ const LeaveTeamModal: FC<LeaveTeamModalProps> = ({ onConfirm, onClose }) => {
     >
       {/*모달 컨텐츠*/}
       <motion.div
-        className="modal-content"
+        className="leave-team-modal-content"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -50, opacity: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <div className="modal-header-bar"></div>
-        <p className="modal-message">팀을 탈퇴하시겠습니까?</p>
-        <div className="modal-actions">
-          <button onClick={onConfirm} className="modal-button confirm">
+        <div className="leave-team-modal-header-bar"></div>
+        <p className="leave-team-modal-message">팀을 탈퇴하시겠습니까?</p>
+        <div className="leave-team-modal-actions">
+          <button
+            onClick={onConfirm}
+            className="leave-team-modal-button confirm"
+          >
             탈퇴하기
           </button>
-          <button onClick={onClose} className="modal-button  cancel">
+          <button onClick={onClose} className="leave-team-modal-button  cancel">
             취소
           </button>
         </div>

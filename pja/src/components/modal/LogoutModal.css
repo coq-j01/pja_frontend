@@ -1,4 +1,4 @@
-.logout-modal-overlay {
+.logout-confirmation-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -6,71 +6,91 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 1000;
-  display: flex; /* 중앙 정렬을 위한 flex 설정 */
+  display: flex;
+  /* 중앙 정렬을 위한 flex 설정 */
   align-items: center;
   justify-content: center;
 }
 
-.logout-modal-content {
+.logout-confirmation-content {
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 420px;
-  min-height: 180px;
+  width: 350px;
+  height: 200px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  z-index: 2000; /* overlay보다 높게 */
-  padding: 24px;
+
 }
 
-.logout-modal-header-bar {
+.logout-confirmation-header-bar {
   width: 100%;
   background-color: #00205b;
-  /*margin-bottom: 20px;*/
+
+  height: 35px;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
+
+
 }
 
 /*메세지 텍스트*/
 .logout-modal-message {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 500;
   color: #333;
 }
+
 /* 버튼들을 담는 컨테이너 */
-.logout-modal-actions {
+.logout-confirmation-actions {
   display: flex;
-  gap: 20px;
+  justify-content: center;
+  gap: 30px;
 }
 
-.logout-modal-button {
+.logout-confirmation-button {
   margin-bottom: 10px;
   border: none;
   border-radius: 6px;
-  padding: 8px;
-  width: 90px;
-  font-size: 16px;
+  padding: 10px;
+  width: 120px;
+  font-size: 20px;
   font-weight: 500;
   cursor: pointer;
 }
 
-.logout-modal-button:active {
+.logout-confirmation-button:active {
   transform: scale(0.98);
 }
 
-.logout-modal-button.confirm {
+
+.logout-confirmation-button.confirm {
   background-color: #00205b; /* 짙은 남색 */
   color: white;
 }
-.logout-modal-button.confirm:hover {
-  background-color: #0a2145;
+.logout-confirmation-button.confirm:hover {
+
+.logout-modal-button.confirm {
+  background-color: #00205b;
+  /* 짙은 남색 */
+  color: white;
 }
 
-.logout-modal-button.cancel {
+.logout-modal-button.confirm:hover {
+
+  
+  background-color: #0a2145; /*배경색*/
+}
+
+.logout-confirmation-button.cancel {
   background-color: #d9d9d6;
 }
+
+
+
+
 .logout-modal-button.cancel:hover {
   background-color: #d1d1d1;
 }
@@ -79,10 +99,11 @@
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 16px;
-  font-size: 14px;
+  font-size: 16px;
   text-align: center;
   border: 1px solid #fcc;
 }
+
 .logout-modal-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;

@@ -1,6 +1,7 @@
 .wssidebar-container {
   display: flex;
   flex-direction: column;
+  position: relative;
   justify-content: space-between;
   min-width: 200px;
   height: 100%;
@@ -15,7 +16,7 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  height: 30%;
+  height: 28%;
   box-sizing: border-box;
 }
 
@@ -34,6 +35,13 @@
   background-color: #f0f0f0;
 }
 
+.wssidebar-list.active {
+  background-color: #f0f0f0;
+  /* 클릭했을 때 고정 배경 */
+  font-weight: bold;
+  /* 강조 효과 */
+}
+
 .wssidebar-list p {
   margin: 0;
   font-size: var(--font-size-sm);
@@ -48,4 +56,67 @@
   width: 18px;
   height: 18px;
   margin: 1px;
+}
+
+.tab-content {
+  position: absolute;
+  box-sizing: border-box;
+  top: 80px;
+  left: 100%;
+  background-color: #fff9f6;
+  /* background-color: #f0f0f0; */
+  padding: 10px 0;
+  border-radius: 8px;
+  height: calc(100% - 100px);
+  width: 400px;
+  z-index: 1000;
+}
+
+.tab-title {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 10px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tab-title p {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+}
+
+.membertab-btn {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  background-color: white;
+  border: 1px solid #d9d9d6;
+  padding: 3px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.membertab-btn p {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: 400;
+}
+
+.notifytab-icons {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.notifytab-icons svg {
+  cursor: pointer;
+}
+
+.line {
+  width: 100%;
+  border-top: 1px solid #ffe3d7;
+  margin: 10px 0;
 }

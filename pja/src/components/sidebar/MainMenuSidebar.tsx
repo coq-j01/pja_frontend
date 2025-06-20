@@ -2,12 +2,13 @@ import type { IsClose } from "../../types/common";
 import { useState } from "react";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Users } from "../../constants/userconstants";
 import { useNavigate } from "react-router-dom";
 import "./MainMenuSidebar.css";
 import LogoutModal from "../modal/LogoutModal";
+import { useUserData } from "../../hooks/useUserData";
 
 export default function MainMenuSidebar({ onClose }: IsClose) {
+  const { userData } = useUserData();
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -46,8 +47,18 @@ export default function MainMenuSidebar({ onClose }: IsClose) {
         transition={{ type: "tween", duration: 0.3 }}
       >
         <div className="mainmenu-layout">
-          <div className="mainmenu-profile">{Users.name.charAt(0)}</div>
-          <p className="mainmenu-username">{Users.name}</p>
+          {userData?.profileImage ? (
+            <img
+              src={userData.profileImage}
+              alt="프로필 이미지"
+              className="mainmenu-profile-image"
+            />
+          ) : (
+            <div className="mainmenu-profile">
+              {userData?.username.charAt(0)}
+            </div>
+          )}
+          <p className="mainmenu-username">{userData?.username}</p>
           <div className="mainmenu-list">
             <p onClick={goToAccountSettings} style={{ cursor: "pointer" }}>
               계정설정

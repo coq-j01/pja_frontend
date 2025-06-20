@@ -1,29 +1,27 @@
 import { useState } from "react";
 import { Members } from "../../constants/userconstants";
-import { dummyWSMember } from "../../constants/wsconstants";
 import "./ParticipantsCell.css";
+import { useCategoryFeatureCategory } from "../../hooks/useCategoryFeatureAction";
 
 type Props = {
   value?: number[];
-  wsid: number;
   onChange: (newParti: number[]) => void;
   disable: boolean;
 };
 
-export const ParticipantsCell = ({
-  value = [],
-  wsid,
-  onChange,
-  disable,
-}: Props) => {
+export const ParticipantsCell = ({ value = [], onChange, disable }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
+  const { participantList } = useCategoryFeatureCategory();
 
   const handleSelect = (userId: number) => {
-    if (value.includes(userId)) {
-      setIsEditing(false);
-      return; // 중복 방지
+    if (!value.includes(userId)) {
+      onChange([...value, userId]);
     }
-    const updated = [...value, userId];
+    setIsEditing(false);
+  };
+
+  const handleRemove = (userId: number) => {
+    const updated = value.filter((id) => id !== userId);
     onChange(updated);
     setIsEditing(false);
   };
@@ -32,33 +30,29 @@ export const ParticipantsCell = ({
     <div className="paricipants-container">
       {isEditing && !disable && (
         <div className="participants-dropdown">
-          {Members.filter((m) =>
-            dummyWSMember
-              .filter((wsm) => wsm.workspace_id === wsid)
-              .some((wsm) => wsm.user_id === m.user_id)
-          ).map((member) => {
-            const isSelected = value.includes(member.user_id);
+          {participantList.map((member) => {
+            const isSelected = value.includes(member.memberId);
             return (
               <div
-                key={member.user_id}
+                key={member.memberId}
                 className="participant-option"
                 onClick={() => {
-                  if (!isSelected) handleSelect(member.user_id);
+                  !isSelected && handleSelect(member.memberId);
                 }}
               >
                 <div>
-                  {member.profile_image ? (
+                  {member.profileImage ? (
                     <img
-                      src={member.profile_image}
-                      alt={member.name}
+                      src={member.profileImage}
+                      alt={member.username}
                       className="partiprofile-img"
                     />
                   ) : (
                     <div className="partiprofile-none">
-                      {member.name.charAt(0)}
+                      {member.username.charAt(0)}
                     </div>
                   )}
-                  <span className="participant-name">{member.name}</span>
+                  <span className="participant-name">{member.username}</span>
                 </div>
 
                 {isSelected && (
@@ -66,11 +60,7 @@ export const ParticipantsCell = ({
                     className="remove-button"
                     onClick={(e) => {
                       e.stopPropagation(); // 상위 클릭 방지
-                      const updated = value.filter(
-                        (id) => id !== member.user_id
-                      );
-                      onChange(updated);
-                      setIsEditing(false);
+                      handleRemove(member.memberId);
                     }}
                   >
                     <svg
@@ -95,18 +85,18 @@ export const ParticipantsCell = ({
       >
         <div className="selected-partinames">
           {value.map((id) => {
-            const user = Members.find((m) => m.user_id === id);
+            const user = participantList.find((m) => m.memberId === id);
             return (
               <div key={id}>
-                {user?.profile_image ? (
+                {user?.profileImage ? (
                   <img
-                    src={user.profile_image}
-                    alt={user.name}
+                    src={user.profileImage}
+                    alt={user.username}
                     className="partiprofile-img"
                   />
                 ) : (
                   <div className="partiprofile-none">
-                    {user?.name.charAt(0)}
+                    {user?.username.charAt(0)}
                   </div>
                 )}
               </div>

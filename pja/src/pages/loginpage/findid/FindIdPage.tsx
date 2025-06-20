@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import logoImage from "../../../assets/img/logo.png";
 import "./FindIdPage.css";
 import findEmailIcon from "../../../assets/img/findEmail.png";
+import { findIdByEmail } from "../../../services/authApi";
 
 interface FindIdSuccessResponse {
   status: "success";
@@ -38,46 +39,34 @@ const FindIdPage: React.FC = () => {
   const handleFindId = async (): Promise<void> => {
     if (!email.trim()) {
       setErrorMessage("이메일을 입력해주세요.");
-      setFoundUserId("");
+
       setShowModal(true);
       return;
     }
 
     if (!isValidEmail(email)) {
       setErrorMessage("올바른 이메일 형식을 입력해주세요.");
-      setFoundUserId("");
       setShowModal(true);
       return;
     }
 
     setLoading(true);
+    setFoundUserId("");
 
     try {
-      const response = await fetch("/api/auth/find-id", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-        }),
-      });
+      const response = await findIdByEmail(email.trim());
 
-      const data: FindIdResponse = await response.json();
-
-      if (response.ok && data.status === "success") {
-        const successData = data as FindIdSuccessResponse;
-        setFoundUserId(successData.data.uid);
-        setErrorMessage("");
-      } else {
-        const errorData = data as FindIdErrorResponse;
-        setFoundUserId("");
-        setErrorMessage(errorData.message || "아이디 찾기에 실패했습니다.");
-      }
+      //성공 시 응답 데이터에서 uid를 추출하여 상태에 저장
+      setFoundUserId(response.data.uid);
     } catch (error) {
-      setFoundUserId("");
-      setErrorMessage("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      //실패 시 API 함수에서 throw한 에러를 잡음
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("알 수 없는 오류가 발생했습니다 ");
+      }
     } finally {
+      //성공 / 실패 여부와 관계없이 항상 실행
       setLoading(false);
       setShowModal(true);
     }
@@ -85,8 +74,6 @@ const FindIdPage: React.FC = () => {
 
   const handleCloseModal = (): void => {
     setShowModal(false);
-    setFoundUserId("");
-    setErrorMessage("");
   };
 
   // 삭제 아이콘 클릭 시 이메일 값을 빈 문자열로 설정
@@ -155,9 +142,9 @@ const FindIdPage: React.FC = () => {
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header" />
+        <div className="findid-modal-overlay">
+          <div className="findid-modal-content">
+            <div className="findid-modal-header" />
             {foundUserId ? (
               <p>
                 아이디는 <strong>{foundUserId}</strong>입니다
@@ -166,10 +153,10 @@ const FindIdPage: React.FC = () => {
               <p style={{ color: "#ff4444" }}>{errorMessage}</p>
             )}
 
-            <div className="modal-footer">
+            <div className="findid-modal-footer">
               <button
                 type="button"
-                className="modal-close-button"
+                className="findid-modal-close-button"
                 onClick={handleCloseModal}
               >
                 확인

@@ -1,36 +1,13 @@
 import "./CategoryProgress.css";
 import { PieChart, Pie, Cell } from "recharts";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../../../store/store";
-import { featureCategories } from "../../../../constants/listconstant";
-import type { feature_category } from "../../../../types/list";
 import { useEffect, useState } from "react";
+import { useCategoryFeatureCategory } from "../../../../hooks/useCategoryFeatureAction";
+
+console.log("📄 categoryprogress.tsx 파일 로드됨!");
 
 export default function CategoryProgress() {
-  const selectedWS = useSelector(
-    (state: RootState) => state.workspace.selectedWS
-  );
-  const wsid = selectedWS?.workspace_id;
-  const [wscategories, setWscategories] = useState<feature_category[]>([]);
-  const [totalCg, setTotalCg] = useState<number>();
-  const [completeCg, setCompleteCg] = useState<number>();
-  const [completePg, setCompletePg] = useState<number>();
-
-  useEffect(() => {
-    if (wsid) {
-      const filtered = featureCategories.filter(
-        (cg) => cg.workspace_id === wsid
-      );
-      setWscategories(filtered);
-      setTotalCg(filtered.length);
-      let completedCount = 0;
-      for (const cg of filtered) {
-        if (cg.state) completedCount++;
-      }
-      setCompleteCg(completedCount);
-      setCompletePg((completedCount / filtered.length) * 100);
-    }
-  }, [featureCategories, wsid]);
+  const { categoryList, totalCg, completeCg, completePg } =
+    useCategoryFeatureCategory();
 
   const data = [
     { name: "완료", value: completePg ?? 0 },
@@ -52,6 +29,7 @@ export default function CategoryProgress() {
             stroke="none"
             startAngle={90}
             endAngle={-270}
+            style={{ pointerEvents: "none" }}
           >
             {data.map((entry, index) => (
               <Cell
@@ -71,20 +49,20 @@ export default function CategoryProgress() {
       <div className="categorypg-list">
         <p>카테고리</p>
         <ul>
-          {wscategories
-            .filter((ws) => !ws.state)
-            .map((ws, index) => (
-              <li key={`incomplete-${index}`}>{ws.name}</li>
+          {categoryList
+            .filter((cg) => !cg.state)
+            .map((cg, index) => (
+              <li key={`incomplete-${index}`}>{cg.name}</li>
             ))}
 
-          {wscategories
-            .filter((ws) => ws.state)
-            .map((ws, index) => (
+          {categoryList
+            .filter((cg) => cg.state)
+            .map((cg, index) => (
               <li
                 key={`complete-${index}`}
                 style={{ textDecoration: "line-through" }}
               >
-                {ws.name}
+                {cg.name}
               </li>
             ))}
         </ul>

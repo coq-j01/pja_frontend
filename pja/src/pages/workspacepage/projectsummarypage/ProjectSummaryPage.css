@@ -1,31 +1,34 @@
-.ideasummary-container {
+.projectsummary-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  width: 80%;
-  max-width: 600px;
+  align-items: center;
+  width: 100%;
+  min-width: 600px;
+  box-sizing: border-box;
   margin: 0 auto;
-  margin-bottom: 50px;
+  margin-bottom: 30px;
   padding: 0 16px;
-  height: 100vh;
+  flex-grow: 1;
   background-color: white;
 }
 
-.ideasummary-box {
+.projectsummary-box {
   display: flex;
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
-  border-radius: 10px;
-  width: 100%;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 600px;
   margin-top: 10px;
   padding: 10px;
+  height: 100%;
   min-height: 500px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
 }
 
-.ideasummary-content {
+.projectsummary-content {
   display: flex;
   width: 100%;
   box-sizing: border-box;
@@ -35,16 +38,22 @@
   gap: 5px;
 }
 
-.ideasummary-content p {
+.projectsummary-content div {
   margin: 10px;
   font-size: var(--font-size-lg);
+  font-weight: 600;
 }
-
-.ideasummary-content ul {
+.projectsummary-content span {
+  margin-left: 5px;
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+}
+.projectsummary-content ul {
   margin: 5px 0;
+  font-weight: 400;
 }
 
-.ideasummary-btn {
+.projectsummary-btn {
   display: flex;
   width: 100%;
   height: 15%;
@@ -55,7 +64,7 @@
   align-items: center;
 }
 
-.ideasummary-btn button {
+.projectsummary-btn button {
   background-color: #fe5000;
   color: #fff;
   padding: 12px 24px;

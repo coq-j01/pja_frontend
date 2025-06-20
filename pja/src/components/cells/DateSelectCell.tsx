@@ -14,12 +14,21 @@ export default function DateSelectCell({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  let parsedDate: Date | null = null;
+
+  if (value instanceof Date) {
+    parsedDate = value;
+  } else if (typeof value === "string" || typeof value === "number") {
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) parsedDate = d;
+  }
+
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
       <button
         onClick={() => {
           if (disable) return;
-          setIsOpen(!isOpen)
+          setIsOpen(!isOpen);
         }}
         style={{
           background: "none",
@@ -30,8 +39,8 @@ export default function DateSelectCell({
           gap: "4px",
         }}
       >
-        {value ? (
-          value.toLocaleDateString("ko-KR", {
+        {parsedDate ? (
+          parsedDate.toLocaleDateString("ko-KR", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",

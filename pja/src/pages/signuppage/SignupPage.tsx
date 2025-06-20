@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
-
 import "./SignupPage.css";
 import logoImage from "../../assets/img/logo.png";
 import personIcon from "../../assets/img/person.png";
@@ -14,6 +13,7 @@ import { validateId } from "./idValidator";
 import { validateName } from "./nameValidator";
 import { validateEmail, EMAIL_VALIDATION_MESSAGES } from "./emailValidator";
 import { validatePassword } from "./passwordValidator";
+import api from "../../lib/axios";
 
 interface SignupApiResponse {
   status: string;
@@ -116,8 +116,8 @@ const SignupPage: React.FC = () => {
 
     try {
       // 새로운 API 엔드포인트로 요청
-      const response = await axios.get<IdCheckApiResponse>(
-        `http://localhost:8080/api/auth/check-uid?uid=${id}`,
+      const response = await api.get<IdCheckApiResponse>(
+        `/auth/check-uid?uid=${id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -223,13 +223,8 @@ const SignupPage: React.FC = () => {
     }
 
     try {
-      const response = await axios.get<EmailCheckApiResponse>(
-        `http://localhost:8080/api/auth/check-email?email=${email}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await api.get<EmailCheckApiResponse>(
+        `/auth/check-email?email=${email}`
       );
 
       // 응답 성공 시 (status code 200)
@@ -336,7 +331,7 @@ const SignupPage: React.FC = () => {
       return;
     }
 
-    //이메일 유효성 확인
+    //비밀번호 유효성 확인
     if (!passwordValidation.isValid) {
       openModal(
         passwordValidation.message || "비밀번호 형식이 올바르지 않습니다."
@@ -350,8 +345,8 @@ const SignupPage: React.FC = () => {
     }
 
     try {
-      const response: AxiosResponse<SignupApiResponse> = await axios.post(
-        "http://localhost:8080/api/auth/signup",
+      const response: AxiosResponse<SignupApiResponse> = await api.post(
+        "/auth/signup",
         {
           uid: id,
           name: name,
@@ -362,22 +357,10 @@ const SignupPage: React.FC = () => {
 
       //  성공 응답 처리 (201 Created)
       if (response.status === 201 && response.data.status === "success") {
-        openModal(
-          response.data.message ||
-            "회원가입이 완료되었습니다 \n이메일 인증을 진행해주세요"
-        );
-
         // 회원가입 성공 후 이메일 인증 요청
         try {
-          const emailResponse = await axios.post(
-            `http://localhost:8080/api/auth/send-email`,
-            { email },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+
+          const emailResponse = await api.post(`/auth/send-email`, { email });
 
           if (
             emailResponse.status === 200 &&
@@ -394,9 +377,6 @@ const SignupPage: React.FC = () => {
           }
         } catch (emailError) {
           console.error("이메일 발송 실패:", emailError);
-          openModal(
-            "이메일 인증 메일 발송에 실패했지만 회원가입은 완료되었습니다."
-          );
         }
 
         window.location.href = `/email-verification?email=${encodeURIComponent(
@@ -439,7 +419,7 @@ const SignupPage: React.FC = () => {
             } else {
               openModal(
                 data.message ||
-                  "중복된 정보가 있습니다.\n입력 정보를 확인해주세요."
+                "중복된 정보가 있습니다.\n입력 정보를 확인해주세요."
               );
             }
             break;
@@ -447,14 +427,14 @@ const SignupPage: React.FC = () => {
           case 500:
             openModal(
               data.message ||
-                "서버 오류가 발생했습니다.\n잠시 후 다시 시도해주세요."
+              "서버 오류가 발생했습니다.\n잠시 후 다시 시도해주세요."
             );
             break;
 
           default:
             openModal(
               data.message ||
-                `오류가 발생했습니다 (${status}).\n다시 시도해주세요.`
+              `오류가 발생했습니다 (${status}).\n다시 시도해주세요.`
             );
             break;
         }
@@ -491,13 +471,12 @@ const SignupPage: React.FC = () => {
                 className={`id-input ${
                   // 클래스 적용 로직 복원
                   id && !idValidation.isValid ? "input-error" : ""
-                } ${
-                  isIdChecked
+                  } ${isIdChecked
                     ? isIdAvailable
                       ? "input-success"
                       : "input-error"
                     : ""
-                }`}
+                  }`}
                 value={id}
                 onChange={handleIdChange}
                 onFocus={(e) => {
@@ -550,9 +529,8 @@ const SignupPage: React.FC = () => {
               {/*중복확인 결과 메세지*/}
               {isIdChecked && idValidation.isValid && (
                 <div
-                  className={`validation-message ${
-                    isIdAvailable ? "success" : "error"
-                  }`}
+                  className={`validation-message ${isIdAvailable ? "success" : "error"
+                    }`}
                 >
                   {isIdAvailable
                     ? "✓ 사용 가능한 아이디입니다."
@@ -572,9 +550,8 @@ const SignupPage: React.FC = () => {
               <input
                 type="text"
                 placeholder="이름"
-                className={`name-input ${
-                  name && !nameValidation.isValid ? "input-error" : ""
-                }`}
+                className={`name-input ${name && !nameValidation.isValid ? "input-error" : ""
+                  }`}
                 value={name}
                 onChange={handleNameChange}
                 onFocus={(e) => {
@@ -622,13 +599,12 @@ const SignupPage: React.FC = () => {
               <input
                 type="text"
                 placeholder="이메일"
-                className={`email-input ${
-                  isEmailChecked
-                    ? isEmailAvailable
-                      ? "input-success"
-                      : "input-error"
-                    : ""
-                }`}
+                className={`email-input ${isEmailChecked
+                  ? isEmailAvailable
+                    ? "input-success"
+                    : "input-error"
+                  : ""
+                  }`}
                 value={email}
                 onChange={handleEmailChange}
                 onFocus={(e) => {
@@ -680,9 +656,8 @@ const SignupPage: React.FC = () => {
             {/* 중복확인 결과 메시지 */}
             {isEmailChecked && (
               <div
-                className={`validation-message ${
-                  isEmailAvailable ? "success" : "error"
-                }`}
+                className={`validation-message ${isEmailAvailable ? "success" : "error"
+                  }`}
               >
                 {isEmailAvailable
                   ? "✓ 사용 가능한 이메일입니다"
@@ -698,9 +673,8 @@ const SignupPage: React.FC = () => {
               <input
                 type={showPassword ? "text" : "password"} /*type 동적 변경*/
                 placeholder="비밀번호"
-                className={`pw-input ${
-                  password && !passwordValidation.isValid ? "input-error" : ""
-                }`}
+                className={`pw-input ${password && !passwordValidation.isValid ? "input-error" : ""
+                  }`}
                 value={password}
                 onChange={handlePasswordChange}
                 onFocus={(e) => {
@@ -772,6 +746,19 @@ const SignupPage: React.FC = () => {
                 </button>
               )}
             </div>
+            {/*비밀번호 유효성 검사 */}
+            {password && !passwordValidation.isValid && (
+              <div className="validation-message error">
+                {passwordValidation.message}
+              </div>
+            )}
+
+            {/* 비밀번호가 유효할 때 성공 메시지 (선택사항) */}
+            {password && passwordValidation.isValid && (
+              <div className="validation-message success">
+                ✓ 사용 가능한 비밀번호입니다
+              </div>
+            )}
           </div>
 
           {/*비밀번호 확인*/}
@@ -787,7 +774,7 @@ const SignupPage: React.FC = () => {
                   passwordConfirm && password !== passwordConfirm
                     ? "input-error"
                     : ""
-                }`}
+                  }`}
                 value={passwordConfirm}
                 onChange={handlePasswordConfirmChange}
                 onFocus={(e) => {

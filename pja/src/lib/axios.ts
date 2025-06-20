@@ -3,6 +3,8 @@ import { setAccessToken, clearAccessToken } from "../store/authSlice";
 import { store } from "../store/store";
 import { refreshAccessToken } from "../services/authApi";
 
+const MAX_RETRIES = 3;
+
 // 1. axios 인스턴스 생성
 const api = axios.create({
   baseURL: "/api", // 백엔드 API 기본 주소
@@ -29,6 +31,23 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // 네트워크 에러 + 재시도 횟수 제한 체크
+    if (!originalRequest._retryCount && error.message === "Network Error") {
+      originalRequest._retryCount = 0;
+    }
+
+    if (
+      error.message === "Network Error" &&
+      originalRequest._retryCount < MAX_RETRIES
+    ) {
+      originalRequest._retryCount += 1;
+      // 재시도 전 약간 대기 (exponential backoff 적용 가능)
+      await new Promise((res) =>
+        setTimeout(res, 500 * originalRequest._retryCount)
+      );
+      return api(originalRequest);
+    }
+
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -38,14 +57,15 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const data = await refreshAccessToken(); // 🔄 accessToken 재발급
-        store.dispatch(setAccessToken(data.accessToken));
+        const response = await refreshAccessToken(); // 🔄 accessToken 재발급
+        const accessToken = response.data?.accessToken ?? null;
+        store.dispatch(setAccessToken(accessToken));
         pendingRequests.forEach((cb) => cb()); // 대기 중인 요청 재실행
         pendingRequests = [];
         isRefreshing = false;
 
         // 원래 요청에 새 토큰 설정하고 재시도
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         return api(originalRequest);
       } catch (refreshError) {

@@ -1,95 +1,69 @@
 import "./Myworkspace.css";
 import { useRef, useState, useEffect } from "react";
-import { Users } from "../../constants/userconstants";
-import { dummyWorkspaces } from "../../constants/wsconstants";
-import type { workspace } from "../../types/workspace";
 import { useNavigate } from "react-router-dom";
 import { WsmenuModal } from "../../components/modal/WsmenuModal";
-import { WscompleteModal } from "../../components/modal/WsmenuModal";
+import { WsCompleteModal } from "../../components/modal/WsmenuModal";
+import { useUserData } from "../../hooks/useUserData";
+import type { workspace } from "../../types/workspace";
+import { getStepIdFromNumber } from "../../utils/projectSteps";
+import { WsDeleteModal } from "../../components/modal/DeleteModal";
+import {
+  completeworkspace,
+  progressworkspace,
+  deleteworkspace,
+} from "../../services/workspaceApi";
 
 export function Myworkspace() {
+  const { myWSData } = useUserData();
   const navigate = useNavigate();
 
-  const [workspaces, setWorkspaces] = useState<workspace[]>(dummyWorkspaces);
-  const [myWorkspaces, setMyWorkspaces] = useState<workspace[]>([]);
+  const [processWorkspaces, setProcessWorkspaces] = useState<workspace[]>([]);
   const [completeWorkspaces, setCompleteWorkspaces] = useState<workspace[]>([]);
   const [menuModalOpen, setMenuModalOpen] = useState<boolean>(false);
   const [completeModalOpen, setCompleteModalOpen] = useState<boolean>(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editName, setEditName] = useState<string>("");
-  const [editTeam, setEditTeam] = useState<string>("");
   const [wsMenuOpenId, setWsMenuOpenId] = useState<number | null>(null);
 
-  const editNameRef = useRef<HTMLDivElement | null>(null);
-  const editTeamRef = useRef<HTMLDivElement | null>(null);
-
   useEffect(() => {
-    const myWorkspaces = workspaces.filter(
-      (ws) => ws.owner_id === Users.user_id && ws.progress_step < 6
-    );
-    setMyWorkspaces(myWorkspaces);
-    const completews = workspaces.filter(
-      (ws) => ws.owner_id === Users.user_id && ws.progress_step === 6
-    );
-    setCompleteWorkspaces(completews);
-  }, [workspaces]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        editId !== null && // 수정 모드일 때만
-        editNameRef.current &&
-        editTeamRef.current &&
-        !editNameRef.current.contains(event.target as Node) &&
-        !editTeamRef.current.contains(event.target as Node)
-      ) {
-        handleSave(editId);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [editId, editName, editTeam]);
+    if (!Array.isArray(myWSData)) return;
+    console.log("mywsdata :", myWSData);
+    const processWS = myWSData?.filter((ws) => Number(ws.progressStep) < 6);
+    setProcessWorkspaces(processWS);
+    const completeWS = myWSData?.filter((ws) => Number(ws.progressStep) === 6);
+    setCompleteWorkspaces(completeWS);
+  }, [myWSData]);
 
   // 각각의 스크롤 영역에 대해 따로 참조 만들기
   const activeRef = useRef<HTMLDivElement>(null);
   const completeRef = useRef<HTMLDivElement>(null);
 
+  const handleClickWS = (ws: workspace) => {
+    const stepId = getStepIdFromNumber(ws.progressStep);
+    navigate(`/ws/${ws.workspaceId}/step/${stepId}`);
+  };
+
   const toggleMenu = (workspaceId: number) => {
     setWsMenuOpenId((prevId) => (prevId === workspaceId ? null : workspaceId));
   };
-  const handleEdit = (ws: workspace) => {
-    setEditId(ws.workspace_id);
-    setEditName(ws.project_name);
-    setEditTeam(ws.team_name);
-    setWsMenuOpenId(null);
-  };
 
-  const handleSave = (id: number) => {
-    setWorkspaces((prev) =>
-      prev.map((ws) =>
-        ws.workspace_id === id && ws.progress_step
-          ? { ...ws, project_name: editName, team_name: editTeam }
-          : ws
-      )
-    );
-    setEditId(null);
-  };
-  const handleComplete = (id: number, step: number) => {
-    if (step === 5) {
-      setWorkspaces((prev) =>
+  //완료 삭제 만드는거 일단 생성 다 끝내고 하기
+  const handleComplete = async (id: number, step: string) => {
+    if (step === "5") {
+      const response = await completeworkspace(id);
+      console.log("완료 결과 : ", response.data);
+      setProcessWorkspaces((prev) =>
         prev.map((ws) =>
-          ws.workspace_id === id ? { ...ws, progress_step: 6 } : ws
+          ws.workspaceId === id ? { ...ws, progressStep: "6" } : ws
         )
       );
-    } else if (step === 6) {
-      setWorkspaces((prev) =>
+    } else if (step === "6") {
+      const response = await progressworkspace(id, "5");
+      console.log("완료 취소 : ", response.data);
+      setProcessWorkspaces((prev) =>
         prev.map((ws) =>
-          ws.workspace_id === id ? { ...ws, progress_step: 5 } : ws
+          ws.workspaceId === id ? { ...ws, progressStep: "5" } : ws
         )
       );
     } else {
@@ -97,9 +71,26 @@ export function Myworkspace() {
     }
     setWsMenuOpenId(null);
   };
-  const handleDelete = (id: number) => {
-    setWorkspaces((prev) => prev.filter((ws) => ws.workspace_id !== id));
+  const handleClickDelete = (id: number) => {
+    setDeleteTargetId(id);
+    setDeleteModalOpen(true);
     setWsMenuOpenId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteTargetId === null) return;
+
+    try {
+      await deleteworkspace(deleteTargetId);
+      setProcessWorkspaces((prev) =>
+        prev.filter((ws) => ws.workspaceId !== deleteTargetId)
+      );
+    } catch (error) {
+      console.error("삭제 실패:", error);
+    } finally {
+      setDeleteModalOpen(false);
+      setDeleteTargetId(null);
+    }
   };
 
   // 드래그 로직 재사용 함수
@@ -141,42 +132,17 @@ export function Myworkspace() {
   const activeHandlers = useDragScroll(activeRef);
   const completeHandlers = useDragScroll(completeRef);
 
-  const getStepIdFromNumber = (stepNum: number): string => {
-    switch (stepNum) {
-      case 0:
-        return "idea";
-      case 1:
-        return "requirements";
-      case 2:
-        return "erd";
-      case 3:
-        return "api";
-      case 4:
-      case 5:
-        return "develop";
-      case 6:
-        return "complete";
-      default:
-        return "idea"; // fallback
-    }
-  };
-
   const renderCards = (data: workspace[]) =>
     data.map((ws) => (
       <div
-        key={ws.workspace_id}
+        key={ws.workspaceId}
         className="workspace-card"
-        onDoubleClick={() => {
-          if (!editId) {
-            const stepId = getStepIdFromNumber(ws.progress_step);
-            navigate(`/ws/${ws.workspace_id}/step/${stepId}`);
-          }
-        }}
+        onDoubleClick={() => handleClickWS(ws)}
       >
         <div>
           <div
             className="workspace-more"
-            onClick={() => toggleMenu(ws.workspace_id)}
+            onClick={() => toggleMenu(ws.workspaceId)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -188,31 +154,12 @@ export function Myworkspace() {
               <path d="M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z" />
             </svg>
           </div>
-          {wsMenuOpenId === ws.workspace_id && ws.progress_step < 6 && (
+          {wsMenuOpenId === ws.workspaceId && Number(ws.progressStep) < 6 && (
             <div className="workspace-menu">
               <div
                 onClick={() => {
-                  Users.user_id === ws.owner_id
-                    ? handleEdit(ws)
-                    : (setMenuModalOpen(true), setWsMenuOpenId(null));
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                  fill="#000000"
-                >
-                  <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
-                </svg>
-                <p>워크스페이스 수정</p>
-              </div>
-              <div
-                onClick={() => {
-                  Users.user_id === ws.owner_id
-                    ? handleComplete(ws.workspace_id, ws.progress_step)
-                    : (setMenuModalOpen(true), setWsMenuOpenId(null));
+                  handleComplete(ws.workspaceId, ws.progressStep);
+                  // : (setMenuModalOpen(true), setWsMenuOpenId(null));
                 }}
               >
                 <svg
@@ -226,12 +173,9 @@ export function Myworkspace() {
                 </svg>
                 <p>워크스페이스 완료</p>
               </div>
-              {/* 사용자권한 모달 확인을 위해 != 로 코드 변경 */}
               <div
                 onClick={() => {
-                  Users.user_id != ws.owner_id
-                    ? handleDelete(ws.workspace_id)
-                    : (setMenuModalOpen(true), setWsMenuOpenId(null));
+                  handleClickDelete(ws.workspaceId);
                 }}
               >
                 <svg
@@ -247,13 +191,11 @@ export function Myworkspace() {
               </div>
             </div>
           )}
-          {wsMenuOpenId === ws.workspace_id && ws.progress_step === 6 && (
+          {wsMenuOpenId === ws.workspaceId && ws.progressStep === "6" && (
             <div className="workspace-menu">
               <div
                 onClick={() => {
-                  Users.user_id === ws.owner_id
-                    ? handleComplete(ws.workspace_id, ws.progress_step)
-                    : (setMenuModalOpen(true), setWsMenuOpenId(null));
+                  handleComplete(ws.workspaceId, ws.progressStep);
                 }}
               >
                 <svg
@@ -269,9 +211,7 @@ export function Myworkspace() {
               </div>
               <div
                 onClick={() => {
-                  Users.user_id === ws.owner_id
-                    ? handleDelete(ws.workspace_id)
-                    : (setMenuModalOpen(true), setWsMenuOpenId(null));
+                  handleClickDelete(ws.workspaceId);
                 }}
               >
                 <svg
@@ -287,38 +227,16 @@ export function Myworkspace() {
               </div>
             </div>
           )}
-          <div
-            className="ws-title-container"
-            ref={editId === ws.workspace_id ? editNameRef : null}
-          >
-            {editId === ws.workspace_id ? (
-              <input
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="workspace-title-input"
-              />
-            ) : (
-              <p className="workspace-title" title={ws.project_name}>
-                {/* 마우스 가져다대면 title뜨는거 기본인데 나중에 시간 남으면 커스텀 해보기로! */}
-                {ws.project_name}
-              </p>
-            )}
+          <div className="ws-title-container">
+            <p className="workspace-title" title={ws.projectName}>
+              {/* 마우스 가져다대면 title뜨는거 기본인데 나중에 시간 남으면 커스텀 해보기로! */}
+              {ws.isPublic ? "" : "🔒"}
+              {ws.projectName}
+            </p>
           </div>
         </div>
-        <div
-          ref={editId === ws.workspace_id ? editTeamRef : null}
-          className="workspace-team"
-        >
-          {editId === ws.workspace_id ? (
-            <input
-              type="text"
-              value={editTeam}
-              onChange={(e) => setEditTeam(e.target.value)}
-            />
-          ) : (
-            <p>{ws.team_name}</p>
-          )}
+        <div className="workspace-team">
+          <p>{ws.teamName}</p>
         </div>
       </div>
     ));
@@ -328,7 +246,7 @@ export function Myworkspace() {
       <div className="ws-container-2">
         <p className="wstitle">진행 중인 워크스페이스</p>
         <div className="workspace-scroll" ref={activeRef} {...activeHandlers}>
-          {renderCards(myWorkspaces)}
+          {renderCards(processWorkspaces)}
           <button onClick={() => navigate("/addws")}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -352,7 +270,15 @@ export function Myworkspace() {
       </div>
       {menuModalOpen && <WsmenuModal onClose={() => setMenuModalOpen(false)} />}
       {completeModalOpen && (
-        <WscompleteModal onClose={() => setCompleteModalOpen(false)} />
+        <WsCompleteModal onClose={() => setCompleteModalOpen(false)} />
+      )}
+      {deleteModalOpen && (
+        <WsDeleteModal
+          onClose={() => {
+            setDeleteTargetId(null), setDeleteModalOpen(false);
+          }}
+          onConfirm={() => handleConfirmDelete()}
+        />
       )}
     </div>
   );

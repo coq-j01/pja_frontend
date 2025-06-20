@@ -1,31 +1,32 @@
 /* 기본형태의 모달css */
 /* 모달 만들때 재사용하면 좋을 듯! */
-.modal-overlay {
+
+.basic-modal-overlay {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 999;
 }
 
-.modal-content {
+.basic-modal-content {
   position: fixed;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 10px 24px;
   width: 300px;
-  min-height: 180px;
   z-index: 1000;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.3s ease;
 }
 
-.modal-title {
+.basic-modal-title {
   font-size: var(--font-size-xl);
   font-weight: bold;
   margin-bottom: 12px;
@@ -33,17 +34,15 @@
   color: black;
 }
 
-.modal-description {
+.basic-modal-description {
   font-size: var(--font-size-sm);
   text-align: center;
-  margin-bottom: 20px;
 }
 
-.modal-close {
+.basic-modal-close {
   display: block;
-  width: 90%;
+  width: 100%;
   margin: 10px;
-  box-sizing: border-box;
   padding: 10px 0;
   background-color: #00205b;
   color: white;
@@ -51,6 +50,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
+  cursor: pointer;
 }
 
 @keyframes fadeIn {

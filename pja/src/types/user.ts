@@ -1,6 +1,6 @@
 // 사용자 데이터 타입
 export interface user {
-  name: string;
+  username: string;
   profileImage: string;
 }
 export interface users {
@@ -20,3 +20,15 @@ export interface auth_code {
 // export interface user_log{
 //   user_log_id :
 // }
+
+//비밀번호 변경
+export interface ChangePasswordRequest {
+  currentPw: string;
+  newPw: string;
+  confirmPw: string;
+}
+
+//이름 변경
+export interface ChangeNameRequest {
+  newName: string;
+}

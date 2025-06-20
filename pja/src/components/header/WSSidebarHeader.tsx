@@ -11,8 +11,8 @@ export function WSSidebarHeader({ onClose }: IsClose) {
     <>
       <div className="sidebarheader-container">
         <div className="sidebarheader-left">
-          <h3>{selectedWS?.project_name}</h3>
-          <p>{selectedWS?.team_name}</p>
+          <h3 title={selectedWS?.projectName}>{selectedWS?.projectName}</h3>
+          <p title={selectedWS?.teamName}>{selectedWS?.teamName}</p>
         </div>
         <div className="sidebarheader-right">
           <svg
